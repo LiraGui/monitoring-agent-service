@@ -1,15 +1,15 @@
 /*
-Copyright © 2024 NAME HERE <EMAIL ADDRESS>
+Copyright © 2024 Guilherme Lira
 */
 package cmd
 
 import (
 	"fmt"
-	"io"
-	"net/http"
-	"os"
 
 	"github.com/spf13/cobra"
+
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/mem"
 )
 
 // getCmd represents the get command
@@ -18,41 +18,13 @@ var getCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
-		var gopherName = "dr-who"
+		fmt.Println("Memory Usage:")
+		PrintMemUsage()
 
-		if len(args) >= 1 && args[0] != "" {
-			gopherName = args[0]
-		}
-
-		URL := "https://github.com/scraly/gophers/blob/main/" + gopherName + ".png"
-
-		fmt.Println("Try to get '" + gopherName + "' Gopher...")
-
-		// Get the data
-		response, err := http.Get(URL)
-		if err != nil {
-			fmt.Println(err)
-		}
-		defer response.Body.Close()
-
-		if response.StatusCode == 200 {
-			// Create the file
-			out, err := os.Create(gopherName + ".png")
-			if err != nil {
-				fmt.Println(err)
-			}
-			defer out.Close()
-
-			// Writer the body to file
-			_, err = io.Copy(out, response.Body)
-			if err != nil {
-				fmt.Println(err)
-			}
-
-			fmt.Println("Perfect! Just saved in " + out.Name() + "!")
-		} else {
-			fmt.Println("Error: " + gopherName + " not exists!")
-		}
+		fmt.Println("")
+		fmt.Println("---")
+		fmt.Println("CPU Usage:")
+		PrintCpuUsage()
 	},
 }
 
@@ -68,4 +40,42 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func PrintMemUsage() {
+	v, err := mem.VirtualMemory()
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	// Print memory information
+	fmt.Printf("Total: %v MB\n", v.Total/1024/1024)
+	fmt.Printf("Free: %v MB\n", v.Free/1024/1024)
+	fmt.Printf("Used: %v MB\n", v.Used/1024/1024)
+	fmt.Printf("Used Percent: %.2f%%\n", v.UsedPercent)
+}
+
+func PrintCpuUsage() {
+	// Get info about single CPU core
+	percentages, err := cpu.Percent(0, true)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	// Print CPU utilizations of all cores
+	for i, percent := range percentages {
+		fmt.Printf("CPU %d: %.2f%%\n", i, percent)
+	}
+
+	// Get total CPU utilization
+	totalPercent, err := cpu.Percent(0, false)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	// Imprimir a utilização total da CPU
+	fmt.Printf("Total CPU Usage: %.2f%%\n", totalPercent[0])
 }
