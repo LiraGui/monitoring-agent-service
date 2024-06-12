@@ -9,6 +9,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
 )
 
@@ -26,6 +27,11 @@ var getCmd = &cobra.Command{
 		fmt.Println("---")
 		fmt.Println("CPU Usage:")
 		PrintCpuUsage()
+
+		fmt.Println("")
+		fmt.Println("---")
+		fmt.Println("Disk Usage:")
+		PrintDisk()
 	},
 }
 
@@ -79,4 +85,10 @@ func PrintCpuUsage() {
 
 	// Print total CPU utulization
 	fmt.Printf("Total CPU Usage: %.2f%%\n", totalPercent[0])
+}
+
+func PrintDisk() {
+	usage, _ := disk.Usage("/")
+	fmt.Println("Mount Point: /")
+	fmt.Printf("Used disk Percent: %.2f%%\n", usage.UsedPercent)
 }
