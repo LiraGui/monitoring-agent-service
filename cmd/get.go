@@ -18,6 +18,7 @@ var getCmd = &cobra.Command{
 	Short: "A brief description of your command",
 	Long:  "",
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("---")
 		fmt.Println("Memory Usage:")
 		PrintMemUsage()
 
@@ -76,6 +77,6 @@ func PrintCpuUsage() {
 		return
 	}
 
-	// Imprimir a utilização total da CPU
+	// Print total CPU utulization
 	fmt.Printf("Total CPU Usage: %.2f%%\n", totalPercent[0])
 }
